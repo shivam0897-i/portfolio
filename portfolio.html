@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shivam Agarwal - Terminal Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #00ff00;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .terminal-container {
+            width: 100%;
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close { background-color: #ff5f56; }
+        .minimize { background-color: #ffbd2e; }
+        .maximize { background-color: #27c93f; }
+
+        .terminal-body {
+            background-color: #1a1a1a;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .terminal-output {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #00d4ff;
+            margin-right: 10px;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: #ffbd2e;
+            font-family: inherit;
+            font-size: 16px;
+            outline: none;
+            flex: 1;
+            caret-color: #ffbd2e;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff00;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .typing-effect {
+            overflow: hidden;
+            white-space: pre-wrap;
+            animation: typing 0.5s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .command-output {
+            margin: 10px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .error {
+            color: #ff5f56;
+        }
+
+        .success {
+            color: #27c93f;
+        }
+
+        .info {
+            color: #ffbd2e;
+        }
+
+        .ascii-art {
+            color: #00ff00;
+            font-size: 11px;
+            line-height: 1.1;
+            margin: 20px 0;
+            font-family: 'Courier New', 'Lucida Console', 'Liberation Mono', monospace;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            white-space: pre;
+            overflow-x: auto;
+            letter-spacing: 0;
+            word-spacing: 0;
+        }
+
+        table {
+            margin: 10px 0;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 5px 20px 5px 0;
+            vertical-align: top;
+        }
+
+        a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .help-command {
+            color: #ffbd2e;
+            font-weight: bold;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00cc00;
+        }
+
+        @media (max-width: 768px) {
+            .terminal-container {
+                padding: 10px;
+            }
+            
+            .terminal-body {
+                padding: 15px;
+            }
+            
+            #terminal-input {
+                font-size: 14px;
+            }
+            
+            .ascii-art {
+                font-size: 8px;
+                line-height: 1;
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-button close"></div>
+            <div class="terminal-button minimize"></div>
+            <div class="terminal-button maximize"></div>
+            <span style="margin-left: 10px; font-size: 14px;">portfolio@shivam:~</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+            <div class="terminal-output" id="terminal-output"></div>
+            <div class="command-line">
+                <span class="prompt">visitor@shivam:~$</span>
+                <input type="text" id="terminal-input" autofocus>
+                <span class="cursor" id="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+        const terminalBody = document.getElementById('terminal-body');
+        const cursor = document.getElementById('cursor');
+
+        // Portfolio data
+        const portfolio = {
+            about: {
+                name: "Shivam Agarwal",
+                title: "AI & ML Engineer | Computer Science Undergraduate",
+                location: "Meerut, Uttar Pradesh",
+                email: "shivamagarwal2211@gmail.com",
+                phone: "+91-6398105401",
+                bio: "AI & ML-focused Computer Science undergraduate with hands-on experience in developing LLM-powered applications, computer vision systems, and multimodal AI platforms. Proficient in Python, JavaScript, TensorFlow, Hugging Face Transformers, and FAISS vector databases. Skilled in cloud deployment (GCP, Firebase, Vercel) and MLOps, delivering scalable, production-ready AI solutions with optimized real-time performance."
+            },
+            education: {
+                degree: "Bachelor of Technology in Computer Science and Engineering",
+                specialization: "Artificial Intelligence and Machine Learning",
+                institution: "Meerut Institute of Engineering and Technology",
+                duration: "2023 – 2027",
+                location: "Meerut, Uttar Pradesh"
+            },
+            skills: {
+                languages: ["Python", "JavaScript", "TypeScript", "SQL", "Git/GitHub"],
+                ml_dl: ["TensorFlow", "Keras", "Scikit-learn", "ResNet50", "Hugging Face Transformers", "Stable Diffusion XL", "Google Gemini (LLM)", "LangChain", "Transfer Learning", "Prompt Engineering", "Model Fine-tuning"],
+                data_science: ["NumPy", "Pandas", "Matplotlib", "Seaborn", "OpenCV", "Pillow", "Plotly", "PyPDF2", "FAISS (Vector Databases)", "Semantic Search"],
+                mlops: ["Firebase", "Google Cloud Platform (GCP)", "Vercel", "Supabase", "VS Code", "Google AI Studio", "Google Translate API", "Asynchronous Processing", "Scalable AI Pipelines", "Real-time Inference"],
+                soft: ["Problem-Solving", "Collaboration", "Presentation", "Time Management"]
+            },
+            projects: [
+                {
+                    name: "ThinkPDF – AI-Powered Document Intelligence",
+                    description: "Developed a scalable AI platform enabling semantic search and interactive querying across multi-document corpora, leveraging state-of-the-art large language models (Google Gemini) and vector databases (FAISS).",
+                    highlights: [
+                        "Engineered advanced embedding and retrieval pipelines achieving >92% precision with low-latency",
+                        "Implemented robust PDF parsing and chunking to enhance context window use and long-document understanding",
+                        "Designed user-centric UI/UX with support for multi-turn conversations, document summarization, and key topic extraction"
+                    ],
+                    tech: ["Google Gemini", "FAISS", "Python", "Transformers"],
+                    link: "github.com/shivamagarwal"
+                },
+                {
+                    name: "Waste Classification System – AI Waste Sorting",
+                    description: "Designed and fine-tuned a deep convolutional neural network based on ResNet50 architecture for multi-class classification of waste types.",
+                    highlights: [
+                        "Achieved 47.5% accuracy on the TrashNet dataset with optimized hyperparameters",
+                        "Built an interactive Streamlit frontend delivering real-time on-device inference",
+                        "Optimized model deployment workflow for efficient edge AI inference with minimal latency"
+                    ],
+                    tech: ["ResNet50", "TensorFlow", "Streamlit", "Transfer Learning"],
+                    link: "github.com/shivamagarwal"
+                },
+                {
+                    name: "MultiModal AI Suite – Production-Ready Content Generation Platform",
+                    description: "Engineered a modular, extensible AI platform integrating foundation models including Google Gemini 2.5 Flash, Stable Diffusion XL, multi-language TTS, and dynamic QR code generation.",
+                    highlights: [
+                        "Achieved sub-2 second API latency through asynchronous processing",
+                        "Implemented scalable NLP, vision, and audio workflows leveraging Hugging Face Inference API",
+                        "Focused on production-grade robustness, extensibility, and user experience"
+                    ],
+                    tech: ["Google Gemini", "Stable Diffusion XL", "Hugging Face", "Python"],
+                    link: "github.com/shivamagarwal"
+                }
+            ],
+            certifications: [
+                {
+                    name: "Artificial Intelligence Fundamentals",
+                    issuer: "IBM SkillsBuild",
+                    date: "May 2025"
+                },
+                {
+                    name: "Google Cloud Generative AI Virtual Internship",
+                    issuer: "SmartBridge & SmartInternz",
+                    date: "Oct 2024"
+                }
+            ],
+            contact: {
+                email: "shivamagarwal2211@gmail.com",
+                phone: "+91-6398105401",
+                github: "github.com/shivamagarwal",
+                linkedin: "linkedin.com/in/shivamagarwal"
+            }
+        };
+
+        // Command history
+        let commandHistory = [];
+        let historyIndex = -1;
+
+        // ASCII art banner
+        const banner = `
+┌───────────────────────────────────────────────────────────────┐
+│                                                               │
+│   ╔═╗╦ ╦╦╦  ╦╔═╗╔╦╗  ╔═╗╔═╗╔═╗╦═╗╦ ╦╔═╗╦                      │
+│   ╚═╗╠═╣║╚╗╔╝╠═╣║║║  ╠═╣║ ╦╠═╣╠╦╝║║║╠═╣║                      │
+│   ╚═╝╩ ╩╩ ╚╝ ╩ ╩╩ ╩  ╩ ╩╚═╝╩ ╩╩╚═╚╩╝╩ ╩╩═╝                    │
+│                                                               │
+│   AI & ML Engineer | Computer Science Undergraduate           │
+│   Welcome to my interactive terminal portfolio!               │
+│   Type 'help' to see available commands.                      │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
+        `;
+
+        // Initialize terminal
+        function init() {
+            typeWriter(banner, 0, () => {
+                terminalInput.disabled = false;
+                terminalInput.focus();
+            });
+        }
+
+        // Typewriter effect
+        function typeWriter(text, index = 0, callback) {
+            if (index === 0) {
+                const outputDiv = document.createElement('div');
+                outputDiv.className = 'command-output ascii-art';
+                outputDiv.id = 'typing-output';
+                terminalOutput.appendChild(outputDiv);
+            }
+
+            const outputDiv = document.getElementById('typing-output');
+            
+            if (index < text.length) {
+                outputDiv.textContent += text.charAt(index);
+                // Much faster typing for better UX
+                const delay = text.charAt(index) === '\n' ? 2 : 1;
+                setTimeout(() => typeWriter(text, index + 1, callback), delay);
+                scrollToBottom(); // Auto-scroll during typing
+            } else {
+                outputDiv.removeAttribute('id');
+                if (callback) callback();
+            }
+        }
+
+        // Command processing
+        function processCommand(command) {
+            const args = command.trim().toLowerCase().split(' ');
+            const cmd = args[0];
+
+            addCommandToOutput(command);
+
+            switch(cmd) {
+                case 'help':
+                    showHelp();
+                    break;
+                case 'about':
+                    showAbout();
+                    break;
+                case 'education':
+                    showEducation();
+                    break;
+                case 'skills':
+                    showSkills();
+                    break;
+                case 'projects':
+                    showProjects();
+                    break;
+                case 'certifications':
+                    showCertifications();
+                    break;
+                case 'contact':
+                    showContact();
+                    break;
+                case 'clear':
+                    clearTerminal();
+                    break;
+                case 'theme':
+                    if (args[1]) {
+                        changeTheme(args[1]);
+                    } else {
+                        addOutput("Usage: theme [green|blue|amber|red]", 'info');
+                    }
+                    break;
+                case '':
+                    break;
+                default:
+                    addOutput(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+            }
+
+            scrollToBottom();
+        }
+
+        // Command handlers
+        function showHelp() {
+            const helpLines = [
+                '',
+                '<span class="success">Available commands:</span>',
+                '',
+                '  <span class="help-command">about</span>          - Display my professional summary',
+                '  <span class="help-command">education</span>      - Show my educational background',
+                '  <span class="help-command">skills</span>         - List my technical skills',
+                '  <span class="help-command">projects</span>       - Show my AI/ML projects',
+                '  <span class="help-command">certifications</span> - Display my certifications',
+                '  <span class="help-command">contact</span>        - Get my contact information',
+                '  <span class="help-command">clear</span>          - Clear the terminal',
+                '  <span class="help-command">theme</span>          - Change terminal theme (green/blue/amber/red)',
+                '  <span class="help-command">help</span>           - Show this help message',
+                '',
+                'Pro tip: Use ↑ and ↓ arrow keys to navigate command history'
+            ];
+            addLineByLineOutput(helpLines);
+        }
+
+        function showAbout() {
+            const aboutLines = [
+                '',
+                '<span class="success">About Me</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                `Name:     ${portfolio.about.name}`,
+                `Title:    ${portfolio.about.title}`,
+                `Location: ${portfolio.about.location}`,
+                '',
+                portfolio.about.bio,
+                '',
+                'Type \'contact\' to get in touch!'
+            ];
+            addLineByLineOutput(aboutLines);
+        }
+
+        function showEducation() {
+            const educationLines = [
+                '',
+                '<span class="success">Education</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                `<span class="info">${portfolio.education.degree}</span>`,
+                `Specialization: ${portfolio.education.specialization}`,
+                '',
+                `Institution: ${portfolio.education.institution}`,
+                `Duration:    ${portfolio.education.duration}`,
+                `Location:    ${portfolio.education.location}`
+            ];
+            addLineByLineOutput(educationLines);
+        }
+
+        function showSkills() {
+            let skillsLines = [
+                '',
+                '<span class="success">Technical Skills</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                '<span class="info">Programming Languages:</span>'
+            ];
+            
+            portfolio.skills.languages.forEach(skill => {
+                skillsLines.push(`  • ${skill}`);
+            });
+            
+            skillsLines.push('');
+            skillsLines.push('<span class="info">Machine Learning & Deep Learning:</span>');
+            portfolio.skills.ml_dl.forEach(skill => {
+                skillsLines.push(`  • ${skill}`);
+            });
+            
+            skillsLines.push('');
+            skillsLines.push('<span class="info">Data Science & Visualization:</span>');
+            portfolio.skills.data_science.forEach(skill => {
+                skillsLines.push(`  • ${skill}`);
+            });
+            
+            skillsLines.push('');
+            skillsLines.push('<span class="info">MLOps & Deployment:</span>');
+            portfolio.skills.mlops.forEach(skill => {
+                skillsLines.push(`  • ${skill}`);
+            });
+            
+            skillsLines.push('');
+            skillsLines.push('<span class="info">Soft Skills:</span>');
+            portfolio.skills.soft.forEach(skill => {
+                skillsLines.push(`  • ${skill}`);
+            });
+            
+            addLineByLineOutput(skillsLines);
+        }
+
+        function showProjects() {
+            let projectsLines = [
+                '',
+                '<span class="success">AI/ML Projects</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+            ];
+            
+            portfolio.projects.forEach((project, index) => {
+                projectsLines.push('');
+                projectsLines.push(`<span class="info">${index + 1}. ${project.name}</span>`);
+                projectsLines.push('');
+                projectsLines.push(project.description);
+                projectsLines.push('');
+                projectsLines.push('Key Achievements:');
+                
+                project.highlights.forEach(highlight => {
+                    projectsLines.push(`  • ${highlight}`);
+                });
+                
+                projectsLines.push('');
+                projectsLines.push(`Tech Stack: ${project.tech.join(', ')}`);
+                projectsLines.push(`GitHub: <a href="https://${project.link}" target="_blank">${project.link}</a>`);
+                
+                if (index < portfolio.projects.length - 1) {
+                    projectsLines.push('');
+                }
+            });
+            
+            addLineByLineOutput(projectsLines);
+        }
+
+        function showCertifications() {
+            let certLines = [
+                '',
+                '<span class="success">Certifications</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+            ];
+            
+            portfolio.certifications.forEach((cert, index) => {
+                certLines.push('');
+                certLines.push(`<span class="info">${index + 1}. ${cert.name}</span>`);
+                certLines.push(`   Issuer: ${cert.issuer}`);
+                certLines.push(`   Date:   ${cert.date}`);
+            });
+            
+            addLineByLineOutput(certLines);
+        }
+
+        function showContact() {
+            const contactLines = [
+                '',
+                '<span class="success">Contact Information</span>',
+                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                '',
+                `Email:    <a href="mailto:${portfolio.contact.email}">${portfolio.contact.email}</a>`,
+                `Phone:    ${portfolio.contact.phone}`,
+                `GitHub:   <a href="https://${portfolio.contact.github}" target="_blank">${portfolio.contact.github}</a>`,
+                `LinkedIn: <a href="https://${portfolio.contact.linkedin}" target="_blank">${portfolio.contact.linkedin}</a>`,
+                '',
+                'Feel free to reach out for AI/ML collaborations or opportunities!'
+            ];
+            addLineByLineOutput(contactLines);
+        }
+
+        function clearTerminal() {
+            terminalOutput.innerHTML = '';
+            addOutput('Terminal cleared.', 'success');
+        }
+
+        function changeTheme(theme) {
+            const themes = {
+                green: { main: '#00ff00', prompt: '#00d4ff', input: '#ffbd2e' },
+                blue: { main: '#00d4ff', prompt: '#00ff00', input: '#ffbd2e' },
+                amber: { main: '#ffbd2e', prompt: '#00d4ff', input: '#00ff00' },
+                red: { main: '#ff5f56', prompt: '#00d4ff', input: '#ffbd2e' }
+            };
+
+            if (themes[theme]) {
+                // Set main theme color
+                document.documentElement.style.setProperty('--theme-color', themes[theme].main);
+                document.body.style.color = themes[theme].main;
+                
+                // Set input color
+                terminalInput.style.color = themes[theme].input;
+                terminalInput.style.caretColor = themes[theme].input;
+                
+                // Set prompt color
+                document.querySelectorAll('.prompt').forEach(el => {
+                    el.style.color = themes[theme].prompt;
+                });
+                
+                // Set other elements to main theme color
+                document.querySelectorAll('.ascii-art, a').forEach(el => {
+                    el.style.color = themes[theme].main;
+                });
+                
+                cursor.style.backgroundColor = themes[theme].input;
+                addOutput(`Theme changed to ${theme}`, 'success');
+            } else {
+                addOutput('Invalid theme. Choose from: green, blue, amber, red', 'error');
+            }
+        }
+
+        // Helper functions
+        function addCommandToOutput(command) {
+            const commandDiv = document.createElement('div');
+            commandDiv.innerHTML = `<span class="prompt">visitor@shivam:~$</span> ${command}`;
+            terminalOutput.appendChild(commandDiv);
+        }
+
+        function addOutput(text, className = '') {
+            const outputDiv = document.createElement('div');
+            outputDiv.className = `command-output ${className}`;
+            outputDiv.innerHTML = text;
+            terminalOutput.appendChild(outputDiv);
+        }
+
+        function addLineByLineOutput(lines, className = '') {
+            lines.forEach(line => {
+                const outputDiv = document.createElement('div');
+                outputDiv.className = `command-output ${className}`;
+                outputDiv.innerHTML = line;
+                terminalOutput.appendChild(outputDiv);
+            });
+        }
+
+        function scrollToBottom() {
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        // Event listeners
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value;
+                if (command.trim()) {
+                    commandHistory.push(command);
+                    historyIndex = commandHistory.length;
+                    processCommand(command);
+                }
+                terminalInput.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    terminalInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    terminalInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    terminalInput.value = '';
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                autoComplete();
+            }
+        });
+
+        // Auto-complete functionality
+        function autoComplete() {
+            const currentInput = terminalInput.value.toLowerCase();
+            const commands = ['help', 'about', 'education', 'skills', 'projects', 'certifications', 'contact', 'clear', 'theme'];
+            
+            const matches = commands.filter(cmd => cmd.startsWith(currentInput));
+            
+            if (matches.length === 1) {
+                terminalInput.value = matches[0];
+            } else if (matches.length > 1) {
+                addOutput(`\nPossible commands: ${matches.join(', ')}`, 'info');
+                addCommandToOutput(terminalInput.value);
+            }
+        }
+
+        // Focus input when clicking anywhere in terminal
+        terminalBody.addEventListener('click', () => {
+            terminalInput.focus();
+        });
+
+        // Hide cursor when input is not focused
+        terminalInput.addEventListener('focus', () => {
+            cursor.style.display = 'inline-block';
+        });
+
+        terminalInput.addEventListener('blur', () => {
+            cursor.style.display = 'none';
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            scrollToBottom();
+        });
+
+        // Terminal button functionality
+        document.querySelector('.close').addEventListener('click', () => {
+            if (confirm('Are you sure you want to close the terminal?')) {
+                window.close();
+            }
+        });
+
+        document.querySelector('.minimize').addEventListener('click', () => {
+            document.body.style.display = 'none';
+            setTimeout(() => {
+                document.body.style.display = 'block';
+            }, 100);
+        });
+
+        document.querySelector('.maximize').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // Add some fun easter eggs
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateEasterEgg();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function activateEasterEgg() {
+            const easterEgg = `
+<span class="success">🎉 Konami Code Activated! 🎉</span>
+
+You found the secret! Here's a special message:
+"AI is not about replacing humans, it's about amplifying human potential"
+
+<span class="info">Achievement Unlocked: Easter Egg Hunter</span>
+            `;
+            addOutput(easterEgg);
+            
+            // Add rainbow effect
+            let hue = 0;
+            const rainbowInterval = setInterval(() => {
+                hue = (hue + 2) % 360;
+                document.body.style.filter = `hue-rotate(${hue}deg)`;
+            }, 50);
+            
+            setTimeout(() => {
+                clearInterval(rainbowInterval);
+                document.body.style.filter = 'none';
+            }, 5000);
+        }
+
+        // Add loading animation for commands
+        function showLoading() {
+            const loadingChars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+            let i = 0;
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'command-output';
+            loadingDiv.textContent = loadingChars[0] + ' Loading...';
+            terminalOutput.appendChild(loadingDiv);
+            
+            const loadingInterval = setInterval(() => {
+                i = (i + 1) % loadingChars.length;
+                loadingDiv.textContent = loadingChars[i] + ' Loading...';
+            }, 80);
+            
+            return { div: loadingDiv, interval: loadingInterval };
+        }
+
+        // Matrix rain effect (optional fun feature)
+        function matrixRain() {
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999';
+            document.body.appendChild(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+            const matrixArray = matrix.split("");
+            
+            const fontSize = 10;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for(let x = 0; x < columns; x++) {
+                drops[x] = 1;
+            }
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#0F0';
+                ctx.font = fontSize + 'px monospace';
+                
+                for(let i = 0; i < drops.length; i++) {
+                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            const matrixInterval = setInterval(draw, 35);
+            
+            setTimeout(() => {
+                clearInterval(matrixInterval);
+                canvas.remove();
+            }, 5000);
+        }
+
+        // Initialize the terminal when page loads
+        window.addEventListener('load', init);
+
+        // Prevent default tab behavior
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

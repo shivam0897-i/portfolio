@@ -27,8 +27,8 @@ import {
 */
 
 const Portfolio = () => {
-  const [isLoaded, setIsLoaded] = useState(true);
-  const { scrollYProgress } = useScroll(); // Removed container ref - use window scroll instead
+  const [isLoaded, setIsLoaded] = useState(false);
+  const { scrollYProgress } = useScroll();
   
   // Smooth scroll progress bar
   const scaleX = useSpring(scrollYProgress, {
@@ -37,13 +37,13 @@ const Portfolio = () => {
     restDelta: 0.001
   });
 
-  // Commented out boot sequence for debugging
-  // useEffect(() => {
-  //   const timer = setTimeout(() => setIsLoaded(true), 1200);
-  //   return () => clearTimeout(timer);
-  // }, []);
+  useEffect(() => {
+    // Simulate initial boot sequence
+    const timer = setTimeout(() => setIsLoaded(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // if (!isLoaded) return <BootSequence />;
+  if (!isLoaded) return <BootSequence />;
 
   return (
     <div className="bg-[#0a0a0a] text-[#e5e5e5] min-h-screen selection:bg-[#ff4d00] selection:text-white overflow-x-hidden font-sans">

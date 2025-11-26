@@ -1,0 +1,19 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 
+    Concept: Computational Brutalism Monogram (S/A)
+    Style: Sharp angles, negative space, machine-readable aesthetics.
+    Color: Uses 'currentColor' to adapt to text color (White/Orange).
+  -->
+  <path 
+    fill-rule="evenodd" 
+    clip-rule="evenodd" 
+    d="M20 20H80V40H40V50H80V80H20V60H60V50H20V20ZM30 30V40H70V30H30ZM70 70V60H30V70H70Z" 
+    fill="currentColor"
+  />
+  
+  <!-- Technical Markers -->
+  <rect x="10" y="10" width="2" height="2" fill="#ff4d00"/>
+  <rect x="88" y="10" width="2" height="2" fill="#ff4d00"/>
+  <rect x="10" y="88" width="2" height="2" fill="#ff4d00"/>
+  <rect x="88" y="88" width="2" height="2" fill="#ff4d00"/>
+</svg>

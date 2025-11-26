@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* Custom base styles for the portfolio */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    margin: 0;
+    min-width: 320px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Hide default cursor on desktop for custom cursor */
+  @media (min-width: 768px) {
+    body {
+      cursor: none;
+    }
+    
+    a, button {
+      cursor: none;
+    }
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .font-serif {
+    font-family: Georgia, "Times New Roman", Times, serif;
+  }
+  
+  .font-mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+}

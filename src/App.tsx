@@ -218,8 +218,8 @@ const HeroSection = () => {
           </div>
           
           <div className="flex gap-4">
-            <SocialLink href="https://github.com/shivamagarwal2211" icon={<Github />} label="GITHUB" />
-            <SocialLink href="https://linkedin.com" icon={<Linkedin />} label="LINKEDIN" />
+            <SocialLink href="https://github.com/shivam0897-i" icon={<Github />} label="GITHUB" />
+            <SocialLink href="https://www.linkedin.com/in/shivam-agarwal-7969b328a/" icon={<Linkedin />} label="LINKEDIN" />
             <SocialLink href="mailto:shivamagarwal2211@gmail.com" icon={<Mail />} label="EMAIL" />
           </div>
         </motion.div>
@@ -577,8 +577,8 @@ const Footer = () => {
     <footer className="py-8 px-6 md:px-12 border-t border-[#262626] flex flex-col md:flex-row justify-between items-center font-mono text-xs text-[#444]">
       <p>&copy; 2024 SHIVAM AGARWAL. SYSTEM VERSION 2.1</p>
       <div className="flex gap-6 mt-4 md:mt-0">
-        <a href="https://linkedin.com" className="hover:text-[#e5e5e5] transition-colors">LINKEDIN</a>
-        <a href="https://github.com/shivamagarwal2211" className="hover:text-[#e5e5e5] transition-colors">GITHUB</a>
+        <a href="https://www.linkedin.com/in/shivam-agarwal-7969b328a/" className="hover:text-[#e5e5e5] transition-colors">LINKEDIN</a>
+        <a href="https://github.com/shivam0897-i" className="hover:text-[#e5e5e5] transition-colors">GITHUB</a>
         <a href="mailto:shivamagarwal2211@gmail.com" className="hover:text-[#e5e5e5] transition-colors">MAIL</a>
       </div>
     </footer>
